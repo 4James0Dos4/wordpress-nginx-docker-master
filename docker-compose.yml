@@ -51,11 +51,10 @@ services:
     depends_on:
       - wordpress
     volumes:
-  - /absolute/path/to/wordpress:/var/www/html:ro
-  - /absolute/path/to/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-  - /absolute/path/to/nginx/ssl:/etc/ssl:ro
-  - /absolute/path/to/nginx/logs:/var/log/nginx
-
+      - /absolute/path/to/wordpress:/var/www/html:ro
+      - /absolute/path/to/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - /absolute/path/to/nginx/ssl:/etc/ssl:ro
+      - /absolute/path/to/nginx/logs:/var/log/nginx
     labels:
       - "coolify.managed=true"
 
