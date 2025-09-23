@@ -50,9 +50,6 @@ services:
       - wordpress
     depends_on:
       - wordpress
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ${WORDPRESS_LOCAL_HOME}:/var/www/html:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
