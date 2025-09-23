@@ -13,12 +13,12 @@ services:
       - database
     volumes:
       - ${WORDPRESS_LOCAL_HOME}:/var/www/html:cached
-      - ${WORDPRESS_UPLOADS_CONFIG}:/usr/local/etc/php/conf.d/uploads.ini
+      - ${WORDPRESS_UPLOADS_CONFIG}:/usr/local/etc/php/conf.d/uploads.ini:ro
     environment:
-      - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
-      - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
-      - WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
-      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
     labels:
       - "coolify.managed=true"
 
@@ -31,10 +31,10 @@ services:
     networks:
       - wordpress
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - ${MYSQL_LOCAL_HOME}:/var/lib/mysql:cached
     command:
@@ -50,9 +50,7 @@ services:
       - wordpress
     depends_on:
       - wordpress
-    ports:
-      - "8080:80"   # HTTP zmienione z 80 -> 8080
-      - "8443:443"  # HTTPS zmienione z 443 -> 8443
+    # Nie mapujemy portów! Coolify/Traefik obsłuży HTTP/HTTPS
     volumes:
       - ${WORDPRESS_LOCAL_HOME}:/var/www/html:ro
       - ${NGINX_CONF:-./nginx/default.conf}:/etc/nginx/conf.d/default.conf:ro
@@ -63,5 +61,5 @@ services:
 
 networks:
   wordpress:
+    external: true
     name: wp-wordpress
-    driver: bridge
