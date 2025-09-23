@@ -1,8 +1,8 @@
 version: '3.9'
+
 services:
 
   wordpress:
-    # default port 9000 (FastCGI)
     image: wordpress:5-fpm
     container_name: wp-wordpress
     env_file:
@@ -23,7 +23,6 @@ services:
       - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
 
   database:
-    # default port 3306
     image: mysql:8
     container_name: wp-database
     env_file:
@@ -42,7 +41,6 @@ services:
       - '--default-authentication-plugin=mysql_native_password'
 
   nginx:
-    # default ports 80, 443 - expose mapping as needed to host
     image: nginx:1
     container_name: wp-nginx
     env_file:
@@ -52,27 +50,13 @@ services:
       - wordpress
     depends_on:
       - wordpress
-    ports:
-      - "8080:80"    # http
-      - "8443:443"   # https
     volumes:
       - ${WORDPRESS_LOCAL_HOME}:/var/www/html
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ${NGINX_SSL_CERTS}:/etc/ssl:ro
-      - ${NGINX_LOGS}:/var/log/nginx
-
-  # adminer - bring up only as needed - bypasses nginx
-#  adminer:
-#    # default port 8080
-#    image: adminer:4
-#    container_name: wp-adminer
-#    restart: unless-stopped
-#    networks:
-#      - wordpress
-#    depends_on:
-#      - database
-#    ports:
-#      - "9000:8080"
+      - ${NGINX_SSL_CERTS:-./nginx/ssl}:/etc/ssl:ro
+      - ${NGINX_LOGS:-./nginx/logs}:/var/log/nginx
+    labels:
+      - "coolify.managed=true"
 
 networks:
   wordpress:
