@@ -1,9 +1,8 @@
 version: '3.9'
 
 services:
-
   wordpress:
-    image: wordpress:5-fpm
+    image: wordpress:6-fpm
     container_name: wp-wordpress
     env_file:
       - .env
@@ -13,17 +12,18 @@ services:
     depends_on:
       - database
     volumes:
-      - ${WORDPRESS_LOCAL_HOME}:/var/www/html
+      - ${WORDPRESS_LOCAL_HOME}:/var/www/html:cached
       - ${WORDPRESS_UPLOADS_CONFIG}:/usr/local/etc/php/conf.d/uploads.ini
-      # - /path/to/repo/myTheme/:/var/www/html/wp-content/themes/myTheme
     environment:
       - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
       - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
       - WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
       - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+    labels:
+      - "coolify.managed=true"
 
   database:
-    image: mysql:8
+    image: mysql:8.1
     container_name: wp-database
     env_file:
       - .env
@@ -36,23 +36,26 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - ${MYSQL_LOCAL_HOME}:/var/lib/mysql
+      - ${MYSQL_LOCAL_HOME}:/var/lib/mysql:cached
     command:
-      - '--default-authentication-plugin=mysql_native_password'
+      - "--default-authentication-plugin=mysql_native_password"
+    labels:
+      - "coolify.managed=true"
 
   nginx:
-    image: nginx:1
+    image: nginx:1.25
     container_name: wp-nginx
-    env_file:
-      - .env
     restart: unless-stopped
     networks:
       - wordpress
     depends_on:
       - wordpress
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - ${WORDPRESS_LOCAL_HOME}:/var/www/html
-      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ${WORDPRESS_LOCAL_HOME}:/var/www/html:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ${NGINX_SSL_CERTS:-./nginx/ssl}:/etc/ssl:ro
       - ${NGINX_LOGS:-./nginx/logs}:/var/log/nginx
     labels:
